@@ -50,6 +50,8 @@ fastImp: $(SURF_BIN_DIR)/$(ARCH) FFTW
 	$(SUPER_LU_LIB_DIR)/superlu.a \
 	$(PFFT_LIB_DIR)/$(ARCH)/clapack.a \
 	$(SUPER_LU_LIB_DIR)/blas.a;
+	
+	@echo "'fastimp' has been successfully created and is in: $(SURF_BIN_DIR)/$(ARCH)/fastimp"
 
 $(SURF_BIN_DIR)/$(ARCH): 
 	if [ ! -d $(SURF_BIN_DIR)/$(ARCH) ]; then\

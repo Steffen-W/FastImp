@@ -33,7 +33,7 @@ TEST_VECTOR3D_DIR = $(PFFT_SRC_DIR)/test_vector3D
 
 ARCH	:= $(shell $(PFFT_UTIL)/config.guess)
 
-all:  $(PFFT_LIB_DIR)/$(ARCH) $(FFTW_LIB_DIR)/libfftw.a
+all:  $(PFFT_LIB_DIR)/$(ARCH)
 	@echo making ...;
 	${MAKE} -C $(PFFT_SRC_DIR);
 	${MAKE} -C $(CLAPACK_SRC_DIR); 
@@ -43,14 +43,7 @@ all:  $(PFFT_LIB_DIR)/$(ARCH) $(FFTW_LIB_DIR)/libfftw.a
 	$(PFFT_SRC_DIR)/$(ARCH)/pfft.o \
 	$(DENSE_SRC_DIR)/$(ARCH)/pfftDense.o \
 	$(PFFT_LIB_DIR)/$(ARCH)/clapack.a \
-	$(FFTW_LIB_DIR)/libfftw.a \
-	$(FFTW_LIB_DIR)/librfftw.a \
 	-o $(PFFT_LIB_DIR)/$(ARCH)/pfft.o 
-
-$(FFTW_LIB_DIR)/libfftw.a: $(FFTW_ROOT)
-	cd $(FFTW_ROOT); ../configure --prefix=$(FFTW_ROOT);
-	${MAKE} -C $(FFTW_SRC_DIR);
-	${MAKE} -C $(FFTW_SRC_DIR) install;
 
 $(FFTW_ROOT): 
 	if [ ! -d $(FFTW_ROOT) ]; then \

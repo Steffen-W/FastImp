@@ -21,13 +21,19 @@ MESH_INC_DIR    = $(SURF_INC_DIR)
 SUPER_LU_SRC_DIR    = $(SURF_ROOT)/src/SuperLU
 SUPER_LU_LIB_DIR    = $(SUPER_LU_SRC_DIR)
 
-FFTW_LIB_DIR = $(PFFT_ROOT)/src/fftw-2.1.3/$(ARCH)/lib
+FFTW_VERSION = 2.1.5
+FFTW_DIR = ../fftw-$(FFTW_VERSION)
+FFTW_URL = http://www.fftw.org/fftw-$(FFTW_VERSION).tar.gz
+FFTW_PREFIX = /usr/local/fftw2
+
+FFTW_LIB_DIR = $(FFTW_DIR)/fftw/.libs
+RFFTW_LIB_DIR = $(FFTW_DIR)/rfftw/.libs
 
 ARCH	:= $(shell $(SURF_UTIL)/config.guess)
 
-all:	fastImp
+all: $(FFTW_DIR) fastImp
 
-fastImp: $(SURF_BIN_DIR)/$(ARCH) 
+fastImp: $(SURF_BIN_DIR)/$(ARCH) FFTW
 	${MAKE} -C $(FILEIO_SRC_DIR); 
 	${MAKE} -C $(MESH_SRC_DIR); 
 	${MAKE} -C $(SURF_SRC_DIR); 
@@ -40,7 +46,7 @@ fastImp: $(SURF_BIN_DIR)/$(ARCH)
 	$(PFFT_LIB_DIR)/$(ARCH)/pfft.o \
 	-o $(SURF_BIN_DIR)/$(ARCH)/fastimp -lm \
 	$(FFTW_LIB_DIR)/libfftw.a \
-	$(FFTW_LIB_DIR)/librfftw.a \
+	$(RFFTW_LIB_DIR)/librfftw.a \
 	$(SUPER_LU_LIB_DIR)/superlu.a \
 	$(PFFT_LIB_DIR)/$(ARCH)/clapack.a \
 	$(SUPER_LU_LIB_DIR)/blas.a;
@@ -65,6 +71,20 @@ minorclean:
 	${RM} $(SURF_TEST_DIR)/core; \
 	${RM} $(SURF_UTIL)/*~; \
 
+$(FFTW_DIR):
+	wget $(FFTW_URL) -O fftw-$(FFTW_VERSION).tar.gz
+	mkdir -p $(FFTW_DIR)
+	tar -xvzf fftw-$(FFTW_VERSION).tar.gz -C $(FFTW_DIR) --strip-components=1
+	rm fftw-$(FFTW_VERSION).tar.gz
+
+$(FFTW_LIB_DIR)/libfftw.a: FFTW
+
+$(RFFTW_LIB_DIR)/librfftw.a: FFTW
+
+FFTW: $(FFTW_DIR)
+	cd $(FFTW_DIR) && ./configure --prefix=$(FFTW_PREFIX)
+	cd $(FFTW_DIR) && make
+
 clean:	
 	${RM} *~; \
 	${MAKE} -C $(SURF_SRC_DIR) clean; 
@@ -81,6 +101,7 @@ realclean:
 	${RM} $(SURF_TEST_DIR)/core; \
 	${RM} $(SURF_INC_DIR)/*~; \
 	${RM} $(SURF_UTIL)/*~; \
+	$(RM) -r $(FFTW_DIR) || true; \
 	${MAKE} -C $(SURF_SRC_DIR) clean; 
 	${MAKE} -C $(MESH_SRC_DIR) clean; 
 	${MAKE} -C $(FILEIO_SRC_DIR) clean; 
